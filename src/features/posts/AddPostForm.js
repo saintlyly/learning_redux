@@ -4,6 +4,7 @@ import { postAdded } from './postsSlice'
 import { useSelector } from 'react-redux'
 import { addNewPost } from './postsSlice'
 import { selectAllUsers } from '../users/usersSlice'
+import { useAddNewPostMutation } from '../api/apiSlice'
 export const AddPostForm = () => {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -16,17 +17,18 @@ export const AddPostForm = () => {
 
   const dispatch = useDispatch()
 
+  const [addNewPost, { isLoading }] = useAddNewPostMutation()
   // const users = useSelector((state) => state.users)
   const users = useSelector(selectAllUsers)
 
-  const canSave =
-    [title, content, userId].every(Boolean) && addRequestStatus === 'idle'
+  // const canSave =
+  //   [title, content, userId].every(Boolean) && addRequestStatus === 'idle'
+  const canSave = [title, content, userId].every(Boolean) && !isLoading
 
   const onSavePostClicked = async () => {
     if (canSave) {
       try {
-        setAddRequestStatus('pending')
-        await dispatch(addNewPost({ title, content, user: userId })).unwrap()
+        await addNewPost({ title, content, user: userId }).unwrap()
         setTitle('')
         setContent('')
         setUserId('')
